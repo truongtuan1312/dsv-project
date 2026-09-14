@@ -11,21 +11,24 @@ import numpy as np
 from pathlib import Path
 from config import RAW_DIR, PROCESSED_DIR
 
-RAW = Path(RAW_DIR)
-PROCESSED = Path(PROCESSED_DIR)
+RAW = RAW_DIR
+PROCESSED = PROCESSED_DIR
 
 
 def load_pdsp(filename: str = "KiDatabase.csv") -> pd.DataFrame:
     """Load the raw PDSP Ki database CSV."""
     df = pd.read_csv(RAW / filename, low_memory=False)
+    df.columns = df.columns.str.strip()  # PDSP's export has a stray leading space on some headers
     return df
 
 
 def clean_pdsp(df: pd.DataFrame) -> pd.DataFrame:
     """Deduplicate, coerce Ki to numeric, and compute pKi."""
     df = df.copy()
-    df["Ki_value"] = pd.to_numeric(df.get("Ki (nM)", df.get("ki_val")), errors="coerce")
+    df = df.rename(columns={"Name": "Receptor"})  # PDSP's 'Name' column is actually the receptor name
+    df["Ki_value"] = pd.to_numeric(df["ki Val"], errors="coerce")
     df = df.dropna(subset=["Ki_value"])
+    df = df[df["Ki_value"] > 0]  # drop zero/negative Ki — log10 undefined, likely data errors
     # Median Ki per (ligand, receptor) pair to collapse repeated assays
     df = (
         df.groupby(["Ligand Name", "Receptor"], as_index=False)["Ki_value"]

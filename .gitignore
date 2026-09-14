@@ -13,3 +13,7 @@ venv/
 
 # Environment
 .env
+
+# Regenerable processed data — don't commit, just regenerate via the pipeline
+data/processed/*.csv
+data/processed/cid_cache.json
