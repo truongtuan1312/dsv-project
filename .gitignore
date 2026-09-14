@@ -1,0 +1,15 @@
+# Raw data (large / re-downloadable — don't commit)
+data/raw/*
+!data/raw/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Environment
+.env
