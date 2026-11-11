@@ -38,9 +38,11 @@ pip install -r requirements.txt
 ## Pipeline
 
 1. **Acquire** — download PDSP Ki CSV and SIDER `meddra_freq.tsv.gz` into `data/raw/` (see links above).
-2. **Process** — clean, convert Ki → pKi, join PDSP and SIDER via PubChem CID (`src/join_data.py`).
+2. **Process** — clean, convert Ki → pKi (`src/load_data.py`), then build one row per drug with pKi at the key receptors and sedation/insomnia rates (`python3 src/join_data.py` → `data/processed/drug_sleep_profile.csv`).
 3. **Confirm** — test whether H1/SERT affinity predicts sedation/insomnia reports (`notebooks/02_confirmation.ipynb`).
-4. **Visualize** — build the three design views: development scatter, confirmation scatter, communication bar chart (`notebooks/03_visualization.ipynb`).
+4. **Visualize** — build the three design views: development scatter, confirmation scatter, communication chart.
+   All three views live in one D3 v7 dashboard in `viz/`. From the repo root, run `python3 -m http.server 8001`,
+   then open http://localhost:8001/viz/. **Teammates: read `viz/STYLEGUIDE.md` before building a view.**
 
 ## Random Seed
 

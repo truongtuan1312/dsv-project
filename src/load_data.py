@@ -26,6 +26,10 @@ def clean_pdsp(df: pd.DataFrame) -> pd.DataFrame:
     """Deduplicate, coerce Ki to numeric, and compute pKi."""
     df = df.copy()
     df = df.rename(columns={"Name": "Receptor"})  # PDSP's 'Name' column is actually the receptor name
+    # Tidy text: PDSP has stray spaces ("  Adrenaline Alpha1") and UTF-8 text that
+    # was decoded as Latin-1 ("Â±"), which would split one receptor/drug into several.
+    for col in ["Ligand Name", "Receptor"]:
+        df[col] = df[col].astype(str).map(fix_mojibake).str.strip().str.replace(r"\s+", " ", regex=True)
     df["Ki_value"] = pd.to_numeric(df["ki Val"], errors="coerce")
     df = df.dropna(subset=["Ki_value"])
     df = df[df["Ki_value"] > 0]  # drop zero/negative Ki — log10 undefined, likely data errors
@@ -39,6 +43,14 @@ def clean_pdsp(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def fix_mojibake(text: str) -> str:
+    """Undo UTF-8 bytes mis-read as Latin-1 (e.g. 'Â±' -> '±'); leave clean text alone."""
+    try:
+        return text.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return text
+
+
 def load_sider_freq(filename: str = "meddra_freq.tsv.gz") -> pd.DataFrame:
     """Load the SIDER drug-side-effect frequency file."""
     columns = [
@@ -47,6 +59,19 @@ def load_sider_freq(filename: str = "meddra_freq.tsv.gz") -> pd.DataFrame:
         "meddra_type", "umls_cui_from_meddra", "side_effect_name",
     ]
     df = pd.read_csv(RAW / filename, sep="\t", names=columns, compression="gzip")
+    return df
+
+
+def clean_sider(df: pd.DataFrame) -> pd.DataFrame:
+    """Keep one MedDRA level and drop placebo-arm rows.
+
+    SIDER lists every side effect twice (LLT and PT); keeping both double-counts.
+    Rows marked 'placebo' are the frequency in the placebo group, not the drug.
+    """
+    df = df[(df["meddra_type"] == "PT") & (df["placebo"].isna())].copy()
+    df["side_effect_name"] = df["side_effect_name"].str.lower().str.strip()
+    # Exact percentages have lower == upper; word bins ("common" = 1-100%) are too wide to use as a rate.
+    df["is_exact"] = df["lower"] == df["upper"]
     return df
 
 

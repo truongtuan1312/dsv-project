@@ -16,4 +16,5 @@ venv/
 
 # Regenerable processed data — don't commit, just regenerate via the pipeline
 data/processed/*.csv
-data/processed/cid_cache.json
+data/processed/cid_cache.json# Small (4 KB) drug-level table the D3 chart reads — keep it so the page works without rerunning the pipeline
+!data/processed/drug_sleep_profile.csv
