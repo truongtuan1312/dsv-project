@@ -1,0 +1,20 @@
+# Raw data (large / re-downloadable — don't commit)
+data/raw/*
+!data/raw/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Environment
+.env
+
+# Regenerable processed data — don't commit, just regenerate via the pipeline
+data/processed/*.csv
+data/processed/cid_cache.json# Small (4 KB) drug-level table the D3 chart reads — keep it so the page works without rerunning the pipeline
+!data/processed/drug_sleep_profile.csv

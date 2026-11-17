@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beyond the Heatmap: Sleepy or sleepless?</title>
+  <link rel="stylesheet" href="shared/dashboard.css">
+</head>
+<body>
+  <header class="dash-header">
+    <div class="dash-inner">
+      <p class="dash-kicker">DSV project · Group 3</p>
+      <h1>Beyond the Heatmap: can we tell from a medicine's chemistry if it will make you sleepy or keep you awake?</h1>
+      <p class="dash-intro">Medicines for mood and mental health work by latching onto tiny "docking spots" in the brain.
+        Two of these spots act like the pedals of a car:</p>
+
+      <!-- Shared key: defined once here, used with the same meaning in every view. -->
+      <div class="key-row">
+        <div class="key-card brake">
+          <span class="key-chip">Brake</span>
+          <div><strong>A spot that slows you down</strong><br>When a medicine blocks it, you feel drowsy. <span class="sci">(scientific name: H1)</span></div>
+        </div>
+        <div class="key-card gas">
+          <span class="key-chip">Gas</span>
+          <div><strong>A spot that speeds you up</strong><br>When a medicine blocks it, you may stay alert. <span class="sci">(scientific name: SERT)</span></div>
+        </div>
+        <div class="key-card neutral">
+          <span class="key-chip">Grip</span>
+          <div><strong>How hard a medicine presses</strong><br>How tightly it holds onto a spot. Higher = presses harder.</div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="dash-navbar"><nav class="dash-inner dash-nav" id="dash-nav" aria-label="Views"></nav></div>
+
+  <main class="dash-inner" id="dash-views"></main>
+
+  <footer class="dash-inner dash-footer">
+    Data: PDSP K<sub>i</sub> Database · SIDER 4.1 · PubChem. Built with D3 v7.
+  </footer>
+
+  <div id="tooltip" class="tooltip" hidden></div>
+
+  <!-- D3 v7 from the CDN; offline fallback to the local copy. -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>window.d3 || document.write('<script src="lib/d3.v7.min.js"><\/script>')</script>
+
+  <!-- 1. shared helpers, 2. one file per view (order on the page comes from `order`), 3. start -->
+  <script src="shared/dashboard.js"></script>
+  <script src="views/development.js"></script>
+  <script src="views/confirmation.js"></script>
+  <script src="views/communication.js"></script>
+  <script>Dash.start();</script>
+</body>
+</html>

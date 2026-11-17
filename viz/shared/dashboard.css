@@ -1,0 +1,144 @@
+/* Shared dashboard style. Views must NOT add their own colours or fonts;
+   use these variables (CSS) or Dash.COLORS (JS) so all three views match. */
+:root {
+  --brake: #6a3d9a;     /* H1 / sleepiness ONLY */
+  --gas: #e66101;       /* SERT / sleeplessness ONLY */
+  --neutral: #8c8c8c;   /* anything else */
+  --ink: #222;
+  --muted: #6b6b6b;
+  --grid: #e6e6e6;
+  --card: #f7f7f8;
+  --holds: #1b7837;
+  --fails: #b2182b;
+  --except: #a66b00;
+  --caveat: #5a5a5a;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--ink); background: #fff;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px; line-height: 1.45;
+}
+.dash-inner { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+/* ---------- header ---------- */
+.dash-header { background: #fff; padding-top: 22px; }
+.dash-kicker { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.dash-header h1 { font-size: 24px; margin: 4px 0 14px; }
+
+.dash-intro { margin: -6px 0 12px; font-size: 15px; max-width: 780px; }
+.sci { color: var(--muted); font-size: 11.5px; }
+.key-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.key-card {
+  display: flex; gap: 10px; align-items: center; padding: 10px 12px;
+  background: var(--card); border-radius: var(--radius); border-left: 4px solid var(--neutral); font-size: 13px;
+}
+.key-card.brake { border-left-color: var(--brake); }
+.key-card.gas { border-left-color: var(--gas); }
+.key-chip {
+  flex: none; min-width: 46px; text-align: center; font-weight: 700; color: #fff;
+  padding: 4px 6px; border-radius: 4px; background: var(--neutral);
+}
+.brake .key-chip { background: var(--brake); }
+.gas .key-chip { background: var(--gas); }
+
+.dash-navbar { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--grid); }
+.dash-nav { display: flex; gap: 4px; }
+.dash-nav a {
+  padding: 8px 14px; color: var(--muted); text-decoration: none; font-weight: 500;
+  border-bottom: 3px solid transparent;
+}
+.dash-nav a:hover { color: var(--ink); }
+.dash-nav a.active { color: var(--ink); border-bottom-color: var(--ink); }
+.dash-nav .num { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center;
+  border-radius: 50%; background: var(--grid); font-size: 11px; margin-right: 6px; }
+
+/* ---------- one view = one section, identical skeleton ---------- */
+.view { padding: 34px 0 30px; border-bottom: 1px solid var(--grid); scroll-margin-top: 40px; }
+.view-kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0; }
+.view-title { font-size: 20px; margin: 4px 0 6px; }
+.view-question { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+.view-question::before { content: "Question: "; font-weight: 600; color: var(--ink); }
+
+.howto { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; padding: 0; list-style: none; }
+.howto li { background: var(--card); border-radius: 14px; padding: 4px 12px; font-size: 12.5px; }
+.howto li b { margin-right: 4px; }
+
+.view-controls { font-size: 13px; color: var(--muted); margin-bottom: 6px; min-height: 4px; }
+.view-controls button {
+  font: inherit; margin-left: 4px; padding: 4px 10px; cursor: pointer;
+  border: 1px solid #ccc; background: #fafafa; border-radius: 14px; color: var(--ink);
+}
+.view-controls button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.view-chart { overflow-x: auto; }
+.view-chart svg { display: block; max-width: 100%; height: auto; }
+
+/* takeaways: one plain sentence per line, with a fixed category tag */
+.takeaways { list-style: none; margin: 16px 0 12px; padding: 12px 16px; background: var(--card);
+  border-radius: var(--radius); max-width: 860px; }
+.takeaways-title { font-weight: 700; font-size: 13px; margin: 0 0 6px; }
+.tk { display: flex; gap: 12px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--grid);
+  font-size: 14px; line-height: 1.5; }
+.tk:first-of-type { border-top: none; }
+.tk-tag { flex: none; width: 150px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.tk-text b { font-weight: 700; }
+.tk-head { font-weight: 600; }
+.tk-points { margin: 2px 0 0; padding-left: 18px; color: #333; list-style: disc; }
+.tk-points li { margin: 1px 0; }
+.tk-stat { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.tk.holds .tk-tag { color: var(--holds); }
+.tk.fails .tk-tag { color: var(--fails); }
+.tk.exception .tk-tag { color: var(--except); }
+.tk.caveat .tk-tag { color: var(--caveat); }
+
+.view-source { font-size: 11px; color: var(--muted); }
+.view-owner { font-size: 11px; color: var(--muted); }
+
+/* placeholder for views not built yet */
+.placeholder {
+  border: 2px dashed #ccc; border-radius: var(--radius); padding: 40px; text-align: center; color: var(--muted);
+}
+.view-error { border: 1px solid var(--fails); color: var(--fails); padding: 12px; border-radius: var(--radius); }
+
+/* ---------- SVG text and axes (shared) ---------- */
+svg text { font-size: 12px; fill: var(--ink); }
+.axis text { fill: var(--muted); font-size: 11px; }
+.axis path, .axis line { stroke: #bbb; }
+.grid line { stroke: var(--grid); }
+.grid path { display: none; }
+.panel-title { font-weight: 600; font-size: 13px; }
+.panel-sub, .axis-label { fill: var(--muted); font-size: 11px; }
+.zero-line { stroke: #888; stroke-width: 1; }
+.annot text { font-size: 11px; fill: #444; font-style: italic; }
+.annot line { stroke: #999; stroke-dasharray: 2 2; }
+
+/* hover / pin states (set by Dash.hoverPin) */
+.hoverable { cursor: pointer; }
+.is-hover { }
+.is-dim { opacity: 0.3; }
+
+.tooltip {
+  position: fixed; pointer-events: none; z-index: 10;
+  background: #fff; border: 1px solid #ccc; border-radius: 6px;
+  padding: 8px 10px; font-size: 12px; line-height: 1.45;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12); max-width: 270px;
+}
+.tooltip.pinned { border: 2px solid #f0a500; }
+.tooltip .hint { color: var(--muted); font-size: 11px; }
+
+.dash-footer { font-size: 11px; color: var(--muted); padding: 20px; }
+
+@media (max-width: 720px) { .dash-intro { margin: -6px 0 12px; font-size: 15px; max-width: 780px; }
+.sci { color: var(--muted); font-size: 11.5px; }
+.key-row { grid-template-columns: 1fr; } }
+
+/* row-style marks: a transparent .hit rect behind the row gets the state colour */
+.hit { fill: transparent; }
+.is-hover .hit { fill: #f3f3f3; }
+.is-pinned .hit { fill: #fff4d6; }
+.connector { stroke: #bdbdbd; stroke-width: 2; }
+.dot { stroke: #fff; stroke-width: 1.5; }
+.row-label { font-weight: 500; }
