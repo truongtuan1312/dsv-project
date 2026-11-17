@@ -1,6 +1,6 @@
 # Development view: "The brake is not the only spot that goes with feeling sleepy" (NOTES)
 
-Owner: TBD
+Owner: Dang Le Truc Linh (ITDSIU25018)
 
 ## How to run
 ```

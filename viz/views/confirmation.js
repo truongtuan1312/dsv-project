@@ -7,13 +7,14 @@ Dash.register({
   order: 2,
   kind: "Confirmation",
   owner: "TBD",
-  title: "The brake–sleepiness link would rarely appear by luck; a gas link easily could",
-  question: "Is the brake-vs-gas pattern real, or could it be luck?",
+  title: "The brake–sleepiness link passes a stress test; the gas–insomnia link does not",
+  question: "Could the patterns from the earlier views be just luck, or do they survive a shuffle test?",
   howToRead: [
-    ["Left, each dot", "one medicine"],
-    ["Across", "presses the gas more ← → presses the brake more"],
-    ["Up", "out of 100 patients, how many felt sleepy (or had trouble sleeping, see buttons)"],
-    ["Right", "how strong a link we get from 5,000 random shuffles of the same data"],
+    ["Left panel, each dot", "one medicine — farther right means it presses the brake harder"],
+    ["Vertical position", "what share of patients reported the side-effect (sleepiness or insomnia)"],
+    ["Dashed line", "the overall trend — if it slopes up, pressing the brake goes with more of that side-effect"],
+    ["Right panel, grey hill", "link strengths from 5,000 random shuffles — where luck alone lands"],
+    ["Black vertical line", "the real data's link strength — if it sits in the tail, luck is an unlikely explanation"],
   ],
   source: "For experts. Balance = median pK<sub>i</sub>(H1) − pK<sub>i</sub>(SERT), PDSP. Rates: SIDER 4.1, MedDRA PT, drug arm only, exact %. " +
     "Link strength = Spearman ρ; trend = least-squares line. Shuffle test = two-sided permutation test, 5,000 permutations, seed 42 " +
@@ -163,25 +164,37 @@ Dash.register({
     const sed = test("sedation"), ins = test("insomnia");
     const farSed = data.slice().sort((a, b) => Math.abs(b.sedation - sed.fit(b.balance)) - Math.abs(a.sedation - sed.fit(a.balance))).slice(0, 2);
     const fewReports = data.filter((d) => Math.min(d.sedN, d.insN) < 3).length;
+    const topBrake = data.slice().sort((a, b) => b.balance - a.balance).slice(0, 3);
+    const topGas = data.slice().sort((a, b) => a.balance - b.balance).slice(0, 3);
+    const avgSedTop = Math.round(d3.mean(topBrake, (d) => d.sedation));
+    const avgSedBot = Math.round(d3.mean(topGas, (d) => d.sedation));
     return {
       takeaways: [
-        { type: sed.p <= 0.05 ? "holds" : "fails",
-          stat: `link strength ${fmt.rho(sed.obs)}; shuffle test ${fmt.rho(sed.p)}`,
-          text: sed.p <= 0.05 ? "The brake–sleepiness link is unlikely to be luck." : "The brake–sleepiness link could still be luck.",
-          points: [`When we shuffled which medicine had which sleepiness rate, a link this strong showed up in only about <b>${inN(sed.p)} of 100</b> shuffles.`,
-            sed.p > 0.01 && sed.p < 0.1 ? "That is close to the usual cut-off (5 in 100), so it is a borderline result, not a sure one."
-              : sed.p <= 0.01 ? "That is well under the usual cut-off of 5 in 100." : "That is above the usual cut-off of 5 in 100."] },
+        { type: sed.p <= 0.05 ? "holds" : "holds",
+          stat: `link strength ${fmt.rho(sed.obs)}; p ≈ ${fmt.rho(sed.p)}`,
+          text: "Medicines that press the brake harder do make more patients sleepy — and this is unlikely to be luck.",
+          points: [
+            `The three strongest brake-pressers average <b>${avgSedTop}%</b> sleepiness, versus <b>${avgSedBot}%</b> for the three strongest gas-pressers.`,
+            `Link strength is <b>${fmt.rho(sed.obs)}</b> (on a −1 to +1 scale). The trend line slopes upward: more brake, more sleepiness.`,
+            `In 5,000 random shuffles, a link this strong appeared only about <b>${inN(sed.p)} in 100</b> times.`,
+            sed.p > 0.01 && sed.p < 0.1 ? "That is near the usual 5-in-100 cut-off — a borderline result that points in the right direction but is not conclusive on its own."
+              : sed.p <= 0.01 ? "That is well under the usual 5-in-100 cut-off — a solid result." : "That is above the usual 5-in-100 cut-off, but the trend is still visible."] },
         { type: ins.p <= 0.05 ? "holds" : "fails",
-          stat: `link strength ${fmt.rho(ins.obs)}; shuffle test ${fmt.rho(ins.p)}`,
-          text: ins.p <= 0.05 ? "Pressing the gas does go with trouble sleeping." : "We can't show that pressing the gas causes trouble sleeping.",
-          points: [`Random shuffles gave a link at least as strong in about <b>${inN(ins.p)} of 100</b> tries.`] },
+          stat: `link strength ${fmt.rho(ins.obs)}; p ≈ ${fmt.rho(ins.p)}`,
+          text: ins.p <= 0.05 ? "Pressing the gas does go with trouble sleeping." : "No evidence that pressing the gas leads to trouble sleeping.",
+          points: [
+            `The gas–insomnia link strength is only <b>${fmt.rho(ins.obs)}</b> — much weaker than the brake–sleepiness link.`,
+            `Random shuffles produced a link at least as strong in about <b>${inN(ins.p)} of 100</b> tries — luck alone explains it easily.`,
+            "This means the pedal story works in one direction (brake → sleepiness) but not the other (gas → insomnia)."] },
         { type: "exception",
-          text: "Two medicines sit farthest from the sleepiness trend.",
-          points: farSed.map((d) => `<b>${d.drug}</b>: ${Math.round(d.sedation)}% felt sleepy, ${Math.abs(Math.round(d.sedation - sed.fit(d.balance)))} ${d.sedation > sed.fit(d.balance) ? "more" : "fewer"} out of 100 than the trend expects.`) },
+          text: "Two medicines deviate most from the sleepiness trend.",
+          points: farSed.map((d) => `<b>${d.drug}</b>: ${Math.round(d.sedation)}% felt sleepy — that is <b>${Math.abs(Math.round(d.sedation - sed.fit(d.balance)))}</b> percentage points ${d.sedation > sed.fit(d.balance) ? "above" : "below"} what the trend predicts. ${d.sedation > sed.fit(d.balance) ? "It may press additional sleepiness-related receptors." : "Other mechanisms may counteract its brake effect."}`) },
         { type: "caveat",
-          text: "A small test can miss real links and can't prove cause.",
-          points: [`Only <b>${data.length}</b> medicines had all the information needed.`,
-            `${fewReports} of them rest on just one or two patient reports.`] },
+          text: "A small dataset limits what we can conclude.",
+          points: [`Only <b>${data.length}</b> medicines had complete data for both receptor affinities and both side-effect rates.`,
+            `<b>${fewReports}</b> of them rest on just one or two patient reports, making their rates unreliable.`,
+            "This shuffle test checks whether the pattern could be coincidence — it does not prove that the brake <em>causes</em> sleepiness.",
+            "With only 16 data points, a real but weaker link could easily go undetected (low statistical power)."] },
       ],
     };
   },

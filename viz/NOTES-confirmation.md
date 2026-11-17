@@ -1,6 +1,6 @@
-# Confirmation view: "The brake–sleepiness link would rarely appear by luck; a gas link easily could" (NOTES)
+# Confirmation view: "The brake–sleepiness link passes a stress test; the gas–insomnia link does not" (NOTES)
 
-Owner: TBD
+Owner: Truong Thuan Tuan (ITDSIU25051)
 
 ## How to run
 ```
